@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tentang Random Forest – ObesitasAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow" style="background:rgba(30,30,60,0.95);backdrop-filter:blur(10px);">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><i class="fas fa-heartbeat text-danger me-2"></i>ObesitasAI</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto gap-1">
+                <li class="nav-item"><a class="nav-link" href="/">Beranda</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dataset">Dataset</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/about">Algoritma</a></li>
+                <li class="nav-item"><a class="nav-link btn btn-danger btn-sm text-white px-3 ms-2" href="/prediction">Prediksi</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div style="padding-top:80px;"></div>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold display-5">🌲 Algoritma Random Forest</h1>
+        <p class="lead text-muted">Penjelasan lengkap tentang algoritma machine learning yang digunakan</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:16px;">
+                <div class="card-header bg-primary text-white border-0" style="border-radius:16px 16px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Apa itu Random Forest?</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p>Random Forest adalah algoritma <strong>ensemble learning</strong> yang menggabungkan banyak Decision Tree untuk menghasilkan prediksi yang lebih akurat dan stabil.</p>
+                    <p>Setiap tree dilatih dengan subset data yang berbeda (teknik <em>bagging</em>), dan hasil akhir ditentukan berdasarkan <strong>voting mayoritas</strong> dari semua tree.</p>
+                    <img src="https://images.unsplash.com/photo-1542903660-eedba2cda473?w=500&h=250&fit=crop" 
+                         alt="Forest" class="img-fluid rounded-3 mt-3">
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:16px;">
+                <div class="card-header bg-success text-white border-0" style="border-radius:16px 16px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Cara Kerja</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% for n, title, desc in [
+                        (1,'Bootstrap Sampling','Setiap tree mendapat subset data training secara acak (with replacement)'),
+                        (2,'Random Feature Selection','Setiap split hanya mempertimbangkan subset fitur acak'),
+                        (3,'Decision Tree Training','Setiap tree dilatih secara independen hingga kedalaman maksimum'),
+                        (4,'Aggregation / Voting','Prediksi akhir = voting mayoritas dari semua tree'),
+                    ] %}
+                    <div class="d-flex gap-3 mb-3 align-items-start">
+                        <div class="step-ball bg-success text-white">{{ n }}</div>
+                        <div>
+                            <div class="fw-bold">{{ title }}</div>
+                            <div class="small text-muted">{{ desc }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm" style="border-radius:16px;">
+                <div class="card-header bg-warning text-dark border-0" style="border-radius:16px 16px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-thumbs-up me-2"></i>Kelebihan</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% for item in ['Akurasi tinggi dan robust terhadap overfitting','Dapat menangani data numerik dan kategorikal','Memberikan feature importance untuk interpretasi','Bekerja baik pada dataset besar','Tidak memerlukan feature scaling'] %}
+                    <div class="d-flex gap-2 mb-2"><i class="fas fa-check-circle text-success mt-1"></i><span>{{ item }}</span></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm" style="border-radius:16px;">
+                <div class="card-header bg-danger text-white border-0" style="border-radius:16px 16px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-thumbs-down me-2"></i>Kekurangan</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% for item in ['Kurang interpretatif dibanding single tree','Membutuhkan lebih banyak memori','Lebih lambat untuk prediksi real-time','Bisa bias pada kelas yang tidak seimbang','Parameter tuning bisa kompleks'] %}
+                    <div class="d-flex gap-2 mb-2"><i class="fas fa-times-circle text-danger mt-1"></i><span>{{ item }}</span></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- Model params -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius:16px;">
+                <div class="card-header bg-dark text-white border-0" style="border-radius:16px 16px 0 0;">
+                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Parameter Model dalam Proyek Ini</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        {% for param, val, desc in [
+                            ('n_estimators','150','Jumlah decision tree dalam forest'),
+                            ('max_depth','15','Kedalaman maksimum setiap tree'),
+                            ('min_samples_split','5','Minimum sampel untuk melakukan split'),
+                            ('random_state','42','Seed untuk reproducibility'),
+                            ('Preprocessing','StandardScaler','Normalisasi fitur numerik'),
+                            ('Test Split','20%','Data testing dengan stratified sampling'),
+                        ] %}
+                        <div class="col-md-4">
+                            <div class="param-box">
+                                <div class="param-name">{{ param }}</div>
+                                <div class="param-val">{{ val }}</div>
+                                <div class="param-desc">{{ desc }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-3 col-6 text-center">
+                            <div class="metric-box">
+                                <div class="metric-num text-primary">{{ "%.1f"|format(metrics.accuracy*100) }}%</div>
+                                <div class="small text-muted">Akurasi</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 text-center">
+                            <div class="metric-box">
+                                <div class="metric-num text-success">{{ "%.1f"|format(metrics.precision*100) }}%</div>
+                                <div class="small text-muted">Precision</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 text-center">
+                            <div class="metric-box">
+                                <div class="metric-num text-info">{{ "%.1f"|format(metrics.recall*100) }}%</div>
+                                <div class="small text-muted">Recall</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 text-center">
+                            <div class="metric-box">
+                                <div class="metric-num text-warning">{{ "%.1f"|format(metrics.f1_score*100) }}%</div>
+                                <div class="small text-muted">F1-Score</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+        <p class="mb-0 small"><i class="fas fa-heartbeat text-danger me-2"></i>ObesitasAI – Klasifikasi Obesitas dengan Random Forest</p>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+.step-ball { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0; }
+.param-box { background:#f8f9fc;border-radius:12px;padding:16px; }
+.param-name { font-size:0.8rem;color:#6c757d;font-weight:600;text-transform:uppercase;letter-spacing:.5px; }
+.param-val { font-size:1.3rem;font-weight:700;color:#333; }
+.param-desc { font-size:0.8rem;color:#6c757d;margin-top:4px; }
+.metric-box { background:#f8f9fc;border-radius:12px;padding:20px; }
+.metric-num { font-size:2rem;font-weight:700; }
+</style>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi Obesitas – ObesitasAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow" style="background:rgba(30,30,60,0.95);backdrop-filter:blur(10px);">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><i class="fas fa-heartbeat text-danger me-2"></i>ObesitasAI</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto gap-1">
+                <li class="nav-item"><a class="nav-link" href="/">Beranda</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dataset">Dataset</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">Algoritma</a></li>
+                <li class="nav-item"><a class="nav-link active btn btn-danger btn-sm text-white px-3 ms-2" href="/prediction">Prediksi</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container" style="padding-top:100px;padding-bottom:60px;">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="text-center mb-5">
+                <span class="badge bg-danger px-3 py-2 mb-3">Form Prediksi</span>
+                <h1 class="fw-bold">Prediksi Tingkat Obesitas</h1>
+                <p class="text-muted lead">Unggah foto Anda atau isi data manual untuk mendapatkan prediksi akurat</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger border-0 rounded-3">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Photo Upload Section -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius:20px;overflow:hidden;">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-5">
+                            <div class="photo-upload-area" id="photoArea">
+                                <div id="photoPlaceholder" class="text-center py-5 px-4">
+                                    <div class="upload-icon-wrap mb-3">
+                                        <i class="fas fa-camera fa-3x text-muted"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-dark">Unggah Foto</h5>
+                                    <p class="text-muted small mb-3">
+                                        Unggah foto tubuh Anda<br>
+                                        <span class="text-danger">(fitur visual – data tetap diisi manual)</span>
+                                    </p>
+                                    <div class="d-flex flex-column gap-2 align-items-center">
+                                        <label for="photoInput" class="btn btn-primary btn-sm px-4">
+                                            <i class="fas fa-upload me-2"></i>Pilih Foto
+                                        </label>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm px-4" id="cameraBtn">
+                                            <i class="fas fa-camera me-2"></i>Buka Kamera
+                                        </button>
+                                    </div>
+                                    <input type="file" id="photoInput" accept="image/*" class="d-none">
+                                </div>
+                                <div id="photoPreview" class="d-none position-relative">
+                                    <img id="previewImg" src="" alt="Preview" class="w-100" style="height:300px;object-fit:cover;">
+                                    <div class="position-absolute top-0 end-0 p-2">
+                                        <button type="button" class="btn btn-sm btn-danger rounded-circle" id="removePhoto">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white text-center py-2">
+                                        <small><i class="fas fa-check-circle text-success me-1"></i>Foto berhasil diunggah</small>
+                                    </div>
+                                </div>
+                                <!-- Camera modal area -->
+                                <div id="cameraArea" class="d-none position-relative">
+                                    <video id="cameraVideo" autoplay playsinline class="w-100" style="height:300px;object-fit:cover;"></video>
+                                    <div class="position-absolute bottom-0 start-0 end-0 p-3 text-center bg-dark bg-opacity-50">
+                                        <button type="button" class="btn btn-success btn-sm me-2" id="captureBtn">
+                                            <i class="fas fa-camera me-1"></i>Ambil Foto
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="cancelCameraBtn">
+                                            Batal
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 bg-light p-4 d-flex align-items-center">
+                            <div>
+                                <h5 class="fw-bold mb-3"><i class="fas fa-info-circle text-primary me-2"></i>Petunjuk Penggunaan</h5>
+                                <div class="d-flex gap-2 mb-2 align-items-start">
+                                    <span class="badge bg-primary rounded-circle">1</span>
+                                    <span class="small">Unggah foto tubuh atau gunakan kamera (opsional, hanya untuk tampilan visual)</span>
+                                </div>
+                                <div class="d-flex gap-2 mb-2 align-items-start">
+                                    <span class="badge bg-primary rounded-circle">2</span>
+                                    <span class="small">Isi semua data kesehatan pada form di bawah ini dengan akurat</span>
+                                </div>
+                                <div class="d-flex gap-2 mb-2 align-items-start">
+                                    <span class="badge bg-primary rounded-circle">3</span>
+                                    <span class="small">Klik "Prediksi Sekarang" untuk mendapatkan hasil klasifikasi</span>
+                                </div>
+                                <div class="d-flex gap-2 mb-3 align-items-start">
+                                    <span class="badge bg-primary rounded-circle">4</span>
+                                    <span class="small">Baca hasil prediksi dan rekomendasi kesehatan yang diberikan</span>
+                                </div>
+                                <div class="alert alert-warning border-0 rounded-3 py-2 mb-0 small">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <strong>Disclaimer:</strong> Hasil ini hanya untuk edukasi, bukan pengganti diagnosa medis profesional.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <form action="/predict" method="POST" id="predForm">
+                <!-- Data Pribadi -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius:20px;">
+                    <div class="card-header border-0 bg-primary text-white py-3 px-4" style="border-radius:20px 20px 0 0;">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Data Pribadi & Antropometri</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Gender -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-venus-mars text-primary me-1"></i>Jenis Kelamin
+                                </label>
+                                <div class="gender-toggle">
+                                    <input type="hidden" name="gender" id="genderVal" value="Male">
+                                    <button type="button" class="gender-btn active" data-val="Male" onclick="setGender('Male',this)">
+                                        <i class="fas fa-mars me-2"></i>Laki-laki
+                                    </button>
+                                    <button type="button" class="gender-btn" data-val="Female" onclick="setGender('Female',this)">
+                                        <i class="fas fa-venus me-2"></i>Perempuan
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Age -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-birthday-cake text-primary me-1"></i>Usia (tahun)
+                                </label>
+                                <input type="number" name="age" class="form-control form-control-lg" 
+                                       placeholder="Contoh: 25" min="10" max="100" required>
+                            </div>
+                            <!-- Height -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-ruler-vertical text-primary me-1"></i>Tinggi Badan (meter)
+                                </label>
+                                <input type="number" name="height" class="form-control form-control-lg" 
+                                       placeholder="Contoh: 1.70" step="0.01" min="1.0" max="2.5" 
+                                       id="heightInput" required>
+                            </div>
+                            <!-- Weight -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-weight text-primary me-1"></i>Berat Badan (kg)
+                                </label>
+                                <input type="number" name="weight" class="form-control form-control-lg" 
+                                       placeholder="Contoh: 70" step="0.1" min="20" max="300" 
+                                       id="weightInput" required>
+                            </div>
+                            <!-- BMI Preview -->
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calculator text-primary me-1"></i>BMI (dihitung otomatis)
+                                </label>
+                                <div class="bmi-preview" id="bmiPreview">
+                                    <div class="bmi-val" id="bmiVal">--</div>
+                                    <div class="bmi-label" id="bmiLabel">Isi tinggi & berat badan</div>
+                                    <div class="bmi-bar mt-2">
+                                        <div class="bmi-fill" id="bmiFill" style="width:0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kebiasaan Hidup -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius:20px;">
+                    <div class="card-header border-0 bg-success text-white py-3 px-4" style="border-radius:20px 20px 0 0;">
+                        <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Kebiasaan & Gaya Hidup</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Family history -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-users text-success me-1"></i>Riwayat Keluarga Obesitas?
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <div class="option-card" onclick="selectOption(this,'family_history','no')">
+                                        <input type="radio" name="family_history" value="no" class="d-none" checked>
+                                        <i class="fas fa-times-circle text-danger fa-2x mb-2"></i>
+                                        <div class="fw-semibold">Tidak</div>
+                                    </div>
+                                    <div class="option-card" onclick="selectOption(this,'family_history','yes')">
+                                        <input type="radio" name="family_history" value="yes" class="d-none">
+                                        <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                                        <div class="fw-semibold">Ya</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- High caloric food -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-hamburger text-success me-1"></i>Sering Makan Makanan Berkalori Tinggi?
+                                </label>
+                                <div class="d-flex gap-2">
+                                    <div class="option-card" onclick="selectOption(this,'high_caloric_food','no')">
+                                        <input type="radio" name="high_caloric_food" value="no" class="d-none" checked>
+                                        <i class="fas fa-times-circle text-danger fa-2x mb-2"></i>
+                                        <div class="fw-semibold">Tidak</div>
+                                    </div>
+                                    <div class="option-card" onclick="selectOption(this,'high_caloric_food','yes')">
+                                        <input type="radio" name="high_caloric_food" value="yes" class="d-none">
+                                        <i class="fas fa-check-circle text-success fa-2x mb-2"></i>
+                                        <div class="fw-semibold">Ya</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Physical activity -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-running text-success me-1"></i>Aktivitas Fisik (hari/minggu)
+                                </label>
+                                <select name="physical_activity" class="form-select form-select-lg">
+                                    <option value="0">0 hari – Tidak aktif</option>
+                                    <option value="1" selected>1–2 hari – Jarang</option>
+                                    <option value="2">3–4 hari – Cukup aktif</option>
+                                    <option value="3">5+ hari – Sangat aktif</option>
+                                </select>
+                            </div>
+                            <!-- Water -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-tint text-success me-1"></i>Konsumsi Air (liter/hari)
+                                </label>
+                                <select name="water_consumption" class="form-select form-select-lg">
+                                    <option value="1">Kurang dari 1 liter</option>
+                                    <option value="2" selected>1 – 2 liter</option>
+                                    <option value="3">Lebih dari 2 liter</option>
+                                </select>
+                            </div>
+                            <!-- Tech usage -->
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-mobile-alt text-success me-1"></i>Penggunaan Teknologi (jam/hari)
+                                </label>
+                                <select name="tech_usage" class="form-select form-select-lg">
+                                    <option value="0">0–2 jam</option>
+                                    <option value="1" selected>2–5 jam</option>
+                                    <option value="2">5+ jam</option>
+                                </select>
+                            </div>
+                            <!-- Transportation -->
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-car text-success me-1"></i>Metode Transportasi Utama
+                                </label>
+                                <div class="row g-2">
+                                    {% for val, label, icon, color in [
+                                        ('Walking','Jalan Kaki','fa-walking','success'),
+                                        ('Bike','Bersepeda','fa-bicycle','info'),
+                                        ('Public_Transportation','Transportasi Umum','fa-bus','primary'),
+                                        ('Motorbike','Motor','fa-motorcycle','warning'),
+                                        ('Automobile','Mobil','fa-car','danger'),
+                                    ] %}
+                                    <div class="col-md col-4">
+                                        <div class="transport-card {{ 'selected' if val == 'Public_Transportation' else '' }}" 
+                                             onclick="selectTransport(this,'{{ val }}')">
+                                            <input type="radio" name="transportation" value="{{ val }}" 
+                                                   class="d-none" {{ 'checked' if val == 'Public_Transportation' else '' }}>
+                                            <i class="fas {{ icon }} fa-2x text-{{ color }} mb-2"></i>
+                                            <div class="small fw-semibold">{{ label }}</div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-danger btn-lg px-5 py-3 fw-bold shadow" id="submitBtn"
+                            style="border-radius:50px;font-size:1.1rem;">
+                        <i class="fas fa-brain me-2"></i>Prediksi Sekarang
+                    </button>
+                    <div class="mt-3 text-muted small">
+                        <i class="fas fa-shield-alt me-1"></i>Data Anda aman dan tidak disimpan di server
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+        <p class="mb-0 small"><i class="fas fa-heartbeat text-danger me-2"></i>ObesitasAI – Klasifikasi Obesitas dengan Random Forest</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Gender toggle
+function setGender(val, btn) {
+    document.getElementById('genderVal').value = val;
+    document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+// Option card (radio replacement)
+function selectOption(card, name, val) {
+    const group = card.closest('.d-flex');
+    group.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    card.querySelector('input[type=radio]').checked = true;
+}
+
+// Transport card
+function selectTransport(card, val) {
+    document.querySelectorAll('.transport-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    card.querySelector('input[type=radio]').checked = true;
+}
+
+// BMI calculator
+function calcBMI() {
+    const h = parseFloat(document.getElementById('heightInput').value);
+    const w = parseFloat(document.getElementById('weightInput').value);
+    if (h > 0 && w > 0) {
+        const bmi = w / (h * h);
+        const bmiVal = document.getElementById('bmiVal');
+        const bmiLabel = document.getElementById('bmiLabel');
+        const bmiFill = document.getElementById('bmiFill');
+
+        bmiVal.textContent = bmi.toFixed(1);
+
+        let label, color, pct;
+        if (bmi < 18.5)       { label='Kekurangan BB';  color='#3498db'; pct=Math.min(bmi/18.5*25,25); }
+        else if (bmi < 25)    { label='Normal';          color='#27ae60'; pct=25+((bmi-18.5)/6.5)*25; }
+        else if (bmi < 30)    { label='Overweight';      color='#f39c12'; pct=50+((bmi-25)/5)*25; }
+        else                  { label='Obesitas';        color='#e74c3c'; pct=Math.min(75+((bmi-30)/20)*25,100); }
+
+        bmiLabel.textContent = label;
+        bmiLabel.style.color = color;
+        bmiVal.style.color = color;
+        bmiFill.style.width = pct + '%';
+        bmiFill.style.background = color;
+    }
+}
+document.getElementById('heightInput').addEventListener('input', calcBMI);
+document.getElementById('weightInput').addEventListener('input', calcBMI);
+
+// Photo upload
+document.getElementById('photoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        document.getElementById('previewImg').src = ev.target.result;
+        document.getElementById('photoPlaceholder').classList.add('d-none');
+        document.getElementById('photoPreview').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('removePhoto').addEventListener('click', function() {
+    document.getElementById('photoPlaceholder').classList.remove('d-none');
+    document.getElementById('photoPreview').classList.add('d-none');
+    document.getElementById('photoInput').value = '';
+});
+
+// Camera
+let stream = null;
+document.getElementById('cameraBtn').addEventListener('click', async function() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({video: true});
+        document.getElementById('cameraVideo').srcObject = stream;
+        document.getElementById('photoPlaceholder').classList.add('d-none');
+        document.getElementById('cameraArea').classList.remove('d-none');
+    } catch(e) {
+        alert('Kamera tidak tersedia. Silakan unggah foto dari galeri.');
+    }
+});
+
+document.getElementById('captureBtn').addEventListener('click', function() {
+    const video = document.getElementById('cameraVideo');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    document.getElementById('previewImg').src = canvas.toDataURL('image/jpeg');
+    document.getElementById('cameraArea').classList.add('d-none');
+    document.getElementById('photoPreview').classList.remove('d-none');
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+});
+
+document.getElementById('cancelCameraBtn').addEventListener('click', function() {
+    document.getElementById('cameraArea').classList.add('d-none');
+    document.getElementById('photoPlaceholder').classList.remove('d-none');
+    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+});
+
+// Form submit
+document.getElementById('predForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menganalisis...';
+});
+</script>
+
+<style>
+.photo-upload-area { min-height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fc; }
+.upload-icon-wrap { width:80px;height:80px;background:#e9ecef;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto; }
+.gender-toggle { display:flex;gap:8px; }
+.gender-btn { flex:1;padding:12px;border:2px solid #dee2e6;border-radius:12px;background:white;font-weight:500;cursor:pointer;transition:all 0.2s; }
+.gender-btn.active { background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-color:transparent; }
+.option-card { flex:1;border:2px solid #dee2e6;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;background:white; }
+.option-card.selected { border-color:#0d6efd;background:#e8f0fe; }
+.transport-card { border:2px solid #dee2e6;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.2s;background:white; }
+.transport-card.selected { border-color:#0d6efd;background:#e8f0fe; }
+.bmi-preview { background:#f8f9fc;border-radius:12px;padding:16px; }
+.bmi-val { font-size:2rem;font-weight:700;color:#6c757d; }
+.bmi-label { font-weight:500; }
+.bmi-bar { height:8px;background:#e9ecef;border-radius:4px;overflow:hidden; }
+.bmi-fill { height:100%;border-radius:4px;transition:all 0.5s; }
+</style>
+</body>
+</html>
