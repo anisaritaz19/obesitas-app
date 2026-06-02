@@ -1,2 +1,4 @@
-[phases.setup]
+[
+phases.setup
+]
 nixPkgs = ["python312"]
